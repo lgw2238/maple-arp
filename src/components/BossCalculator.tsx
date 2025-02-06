@@ -36,12 +36,25 @@ export default function BossCalculator({ characters, bossList }: BossCalculatorP
   }, [characters]);
 
   const handleBossToggle = (characterId: string, bossId: string) => {
+    const currentSelection = selectedBosses[characterId] || {};
+    const isSelected = currentSelection[bossId] || false;
+
+    // Count currently selected bosses for the character
+    const selectedCount = Object.values(currentSelection).filter(Boolean).length;
+
+    if (!isSelected && selectedCount >= 12) {
+        // Optionally, show an alert or message to the user
+        alert('각 캐릭터당 선택할 수 있는 결정석의 수는 12개로 제한됩니다.');
+        return; // Exit if the limit is reached
+    }
+
+    // Proceed with toggling the selection
     setSelectedBosses(prev => ({
-      ...prev,
-      [characterId]: {
-        ...prev[characterId],
-        [bossId]: !prev[characterId]?.[bossId]
-      }
+        ...prev,
+        [characterId]: {
+            ...currentSelection,
+            [bossId]: !isSelected,
+        },
     }));
   };
 
@@ -72,7 +85,12 @@ export default function BossCalculator({ characters, bossList }: BossCalculatorP
     <div className="space-y-8">
       {characters.map(character => (
         <div key={character.id} className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">{character.name}</h2>
+          <h2 className="text-xl font-semibold mb-4 flex justify-between">
+            {character.name}
+            <span className="text-sm text-gray-600">
+              선택한 결정석: {Object.values(selectedBosses[character.id] || {}).filter(Boolean).length}
+            </span>
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {bossList.map(boss => (
               <div key={boss.id} className="flex items-center space-x-2">

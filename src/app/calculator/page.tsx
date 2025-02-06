@@ -4,15 +4,21 @@ import { prisma } from '@/lib/prisma';
 import { Boss, bossList } from '@/constants/bosses';
 import BossCalculator from '@/components/BossCalculator';
 import { redirect } from 'next/navigation';
+import { Character } from '@/interfaces/index';
+
+const characters: Character[] = [
+  { id: '1', name: 'Boss', world: 'Maple World', level: 50, class: 'Warrior' },
+  // Add more characters as needed
+];
 
 export default async function CalculatorPage() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user?.id) {
     redirect('/auth/signin');
   }
 
-  const characters = await prisma.character.findMany({
+  const dbCharacters = await prisma.character.findMany({
     where: {
       userId: session.user.id
     },
@@ -28,4 +34,5 @@ export default async function CalculatorPage() {
       <BossCalculator characters={characters} bossList={bossList} />
     </div>
   );
+  
 }
