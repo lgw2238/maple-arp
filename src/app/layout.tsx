@@ -7,7 +7,7 @@ import Providers from '@/components/Providers';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Maple ARP - 메이플스토리 통계',
+  title: 'Maple ARP - 메이플스토리 만능주머니',
   description: '메이플스토리 캐릭터 정보, 랭킹, 길드 정보를 한눈에 확인하세요.',
 };
 

@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
-import Image from 'next/image';
-import CharacterSearch from '@/components/CharacterSearch';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,7 +55,7 @@ export default function Home() {
       <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-2xl lg:text-center">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            메이플스토리 통계의 모든 것
+            메이플스토리 만능주머니 
           </h2>
           <p className="mt-6 text-lg leading-8 text-gray-600">
             캐릭터 정보부터 랭킹, 길드까지 한눈에 확인하세요

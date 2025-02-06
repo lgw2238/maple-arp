@@ -27,6 +27,10 @@ export interface CharacterBasic {
 export interface CharacterStat {
     date: string;
     character_class: string;
+    final_stat: Array<{
+        stat_name: string;
+        stat_value: string;
+    }>;
     stats: {
         str: string;
         dex: string;

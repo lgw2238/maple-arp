@@ -29,7 +29,7 @@ async function fetchMapleAPI(endpoint: string, params: Record<string, string> = 
     });
 
     const responseText = await response.text();
-    console.log('API Response:', responseText);
+    console.log('API Response:', endpoint + '' + responseText);
 
     if (!response.ok) {
       throw new Error(`API request failed (${response.status}): ${responseText}`);

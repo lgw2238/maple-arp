@@ -88,6 +88,12 @@ export default function CharacterPage({ params }: { params: Promise<{ name: stri
     }
   };
 
+  const [showAllStats, setShowAllStats] = useState(false);
+
+  const toggleStats = () => {
+    setShowAllStats(!showAllStats);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 py-12">
@@ -198,7 +204,7 @@ export default function CharacterPage({ params }: { params: Promise<{ name: stri
                   <div className="bg-gray-50 rounded-lg p-4">
                     <div className="text-sm text-gray-500">전투력</div>
                     <div className="text-lg font-bold text-gray-900">
-                      {character.character_level * 1000} {/* 임시 데이터 */}
+                      {character.stats?.final_stat.find(stat => stat.stat_name === '전투력')?.stat_value || '0'}
                     </div>
                   </div>
                   <div className="bg-gray-50 rounded-lg p-4">
@@ -210,7 +216,7 @@ export default function CharacterPage({ params }: { params: Promise<{ name: stri
                   <div className="bg-gray-50 rounded-lg p-4">
                     <div className="text-sm text-gray-500">인기도</div>
                     <div className="text-lg font-bold text-gray-900">
-                      {character.character_level * 2} {/* 임시 데이터 */}
+                     {character.popularity.popularity}
                     </div>
                   </div>
                   <div className="bg-gray-50 rounded-lg p-4">
@@ -248,46 +254,19 @@ export default function CharacterPage({ params }: { params: Promise<{ name: stri
           {/* Stats Section */}
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h3 className="text-lg font-bold mb-4">스탯 정보</h3>
-            {loading ? (
-              <div>Loading...</div>
-            ) : character?.stats ? (
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <dt className="text-sm text-gray-500">STR</dt>
-                  <dd className="text-lg font-semibold">{character.stats.stats?.str || '0'}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-gray-500">DEX</dt>
-                  <dd className="text-lg font-semibold">{character.stats.stats?.dex || '0'}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-gray-500">INT</dt>
-                  <dd className="text-lg font-semibold">{character.stats.stats?.int || '0'}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-gray-500">LUK</dt>
-                  <dd className="text-lg font-semibold">{character.stats.stats?.luk || '0'}</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-gray-500">데미지</dt>
-                  <dd className="text-lg font-semibold">{character.stats.stats?.damage || '0'}%</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-gray-500">보스 데미지</dt>
-                  <dd className="text-lg font-semibold">{character.stats.stats?.boss_damage || '0'}%</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-gray-500">방어율 무시</dt>
-                  <dd className="text-lg font-semibold">{character.stats.stats?.ignore_defense || '0'}%</dd>
-                </div>
-                <div>
-                  <dt className="text-sm text-gray-500">크리티컬 데미지</dt>
-                  <dd className="text-lg font-semibold">{character.stats.stats?.critical_damage || '0'}%</dd>
-                </div>
-              </div>
-            ) : (
-              <div>스탯 정보를 불러올 수 없습니다.</div>
-            )}
+            <button onClick={toggleStats} className="text-blue-500 hover:underline">
+              {showAllStats ? '숨기기' : '모두 보기'}
+            </button>
+            <div className="grid grid-cols-2 gap-4">
+              {character.stats?.final_stat
+                .filter(stat => showAllStats || ['보스 몬스터 데미지', '데미지', '방어율 무시', '버프 지속시간', '크리티컬 확률', '크리티컬 데미지', '아케인포스', '어센틱포스'].includes(stat.stat_name))
+                .map((stat, index) => (
+                  <div key={index}>
+                    <dt className="text-sm text-gray-500">{stat.stat_name}</dt>
+                    <dd className="text-lg font-semibold">{stat.stat_value}</dd>
+                  </div>
+                ))}
+            </div>
           </div>
 
           {/* Symbols Section */}
