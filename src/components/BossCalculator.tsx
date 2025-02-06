@@ -1,26 +1,39 @@
 'use client';
 
-import { useState } from 'react';
-import { Boss } from '@/constants/bosses';
-
-interface Character {
-  id: string;
-  name: string;
-}
-
-interface CharacterBosses {
-  [characterId: string]: {
-    [bossId: string]: boolean;
-  };
-}
-
-interface BossCalculatorProps {
-  characters: Character[];
-  bossList: Boss[];
-}
+import { useState, useEffect } from 'react';
+import { Boss, Character, CharacterBosses, BossCalculatorProps } from '@/interfaces';
+import { getCharacterBosses } from '@/lib/maple-api';
 
 export default function BossCalculator({ characters, bossList }: BossCalculatorProps) {
   const [selectedBosses, setSelectedBosses] = useState<CharacterBosses>({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBossData = async () => {
+      try {
+        // Initialize boss data for each character
+        const initialBossData: CharacterBosses = {};
+        
+        for (const character of characters) {
+          const characterBosses = await getCharacterBosses(character.id);
+          initialBossData[character.id] = {};
+          
+          // Set initial state based on API data
+          characterBosses.forEach(boss => {
+            initialBossData[character.id][boss.id] = false;
+          });
+        }
+        
+        setSelectedBosses(initialBossData);
+        setLoading(false);
+      } catch (error) {
+        console.error('보스 데이터 로딩 중 오류 발생:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchBossData();
+  }, [characters]);
 
   const handleBossToggle = (characterId: string, bossId: string) => {
     setSelectedBosses(prev => ({
@@ -50,6 +63,10 @@ export default function BossCalculator({ characters, bossList }: BossCalculatorP
   const formatMesos = (amount: number): string => {
     return new Intl.NumberFormat('ko-KR').format(amount);
   };
+
+  if (loading) {
+    return <div className="text-center p-8">데이터를 불러오는 중...</div>;
+  }
 
   return (
     <div className="space-y-8">

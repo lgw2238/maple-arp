@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/solid';
 import Image from 'next/image';
+import CharacterSearch from '@/components/CharacterSearch';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');

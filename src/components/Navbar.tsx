@@ -11,7 +11,6 @@ const navigation = [
   { name: '홈', href: '/' },
   { name: '랭킹', href: '/ranking' },
   { name: '길드', href: '/guild' },
-  { name: '캐릭터 검색', href: '/search' },
   { name: '보스 결정석 계산기', href: '/calculator' },
 ];
 

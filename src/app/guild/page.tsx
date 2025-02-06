@@ -3,16 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
-
-interface Guild {
-  rank: number;
-  previousRank: number;
-  name: string;
-  server: string;
-  level: number;
-  memberCount: number;
-  masterName: string;
-}
+import { Guild } from '@/interfaces/index';
 
 // 임시 데이터
 const mockGuilds: Guild[] = Array.from({ length: 20 }, (_, i) => ({

@@ -2,13 +2,15 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import { prisma } from "@/lib/prisma";
+import { use } from "react";
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const { id } = context.params;
 
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -18,17 +20,17 @@ export async function DELETE(
     }
 
     const character = await prisma.character.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!character) {
       return NextResponse.json(
-        { error: "캐릭터를 찾을 수 없습니다." },
+        { error: "route | 캐릭터를 찾을 수 없습니다." },
         { status: 404 }
       );
     }
 
-    if (character.userId !== session.user.id) {
+    if (character.userId !== session.user?.id) {
       return NextResponse.json(
         { error: "권한이 없습니다." },
         { status: 403 }
@@ -36,14 +38,14 @@ export async function DELETE(
     }
 
     await prisma.character.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ message: "캐릭터가 삭제되었습니다." });
   } catch (error) {
-    console.error("캐릭터 등록 해제 중 오류:", error);
+    console.error("Error deleting character:", error);
     return NextResponse.json(
-      { error: "캐릭터 등록 해제 중 오류가 발생했습니다." },
+      { error: "캐릭터 삭제 중 오류가 발생했습니다." },
       { status: 500 }
     );
   }
