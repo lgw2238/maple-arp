@@ -1,4 +1,4 @@
-import { ApiResponse, CharacterBasic, CharacterSearchResponse, Boss } from '@/interfaces';
+import { ApiResponse, CharacterBasic, Guild, Boss } from '@/interfaces';
 
 const MAPLE_API_KEY = process.env.NEXT_PUBLIC_MAPLE_API_KEY;
 const MAPLE_API_BASE_URL = 'https://open.api.nexon.com/maplestory/v1';
@@ -144,3 +144,28 @@ export async function getCharacterBosses(ocid: string): Promise<Boss[]> {
         throw error;
     }
 }
+
+export const fetchGuildData = async (page: number) => {
+    try {
+        const response = await fetch(`${MAPLE_API_BASE_URL}/ranking/guild?page=${page}&date=${getYesterday()}&ranking_type=0`, {
+            headers: {
+                'x-nxopen-api-key': MAPLE_API_KEY || ''
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("fetchGuildData1:", response);
+        console.log("fetchGuildData:", data);
+        return {
+            data: data.ranking, // API에서 길드 데이터 추출
+            totalPages: Math.ceil(data.ranking.length / 20) // 총 페이지 수 (예시: 20개씩 페이지 나누기)
+        };
+    } catch (error) {
+        console.error('Error fetching guild data:', error);
+        throw error;
+    }
+};

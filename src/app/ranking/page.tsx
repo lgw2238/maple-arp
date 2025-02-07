@@ -28,14 +28,40 @@ const mockRankings: RankingCharacter[] = Array.from({ length: 20 }, (_, i) => ({
 export default function RankingPage() {
   const [rankings, setRankings] = useState<RankingCharacter[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     // 실제 API 연동 시 이 부분을 수정하면 됩니다
-    setTimeout(() => {
-      setRankings(mockRankings);
+    const loadData = async () => {
+      const result = await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            data: mockRankings.slice((currentPage - 1) * 10, currentPage * 10),
+            totalPages: Math.ceil(mockRankings.length / 10),
+          });
+        }, 1000);
+      });
+      setRankings(result.data);
+      setTotalPages(result.totalPages);
       setLoading(false);
-    }, 1000);
-  }, []);
+    };
+    loadData();
+  }, [currentPage]);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+      setLoading(true);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+      setLoading(true);
+    }
+  };
 
   const getRankChange = (current: number, previous: number) => {
     const diff = previous - current;
@@ -166,31 +192,33 @@ export default function RankingPage() {
         {/* Pagination */}
         <div className="mt-6 flex justify-center">
           <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-            <a
-              href="#"
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
               className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
             >
               이전
-            </a>
-            {[1, 2, 3, 4, 5].map((page) => (
-              <a
+            </button>
+            {[...Array(totalPages).keys()].map((page) => (
+              <button
                 key={page}
-                href="#"
+                onClick={() => setCurrentPage(page + 1)}
                 className={`relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium ${
-                  page === 1
+                  page + 1 === currentPage
                     ? 'text-blue-600 bg-blue-50'
                     : 'text-gray-700 hover:bg-gray-50'
                 }`}
               >
-                {page}
-              </a>
+                {page + 1}
+              </button>
             ))}
-            <a
-              href="#"
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
               className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
             >
               다음
-            </a>
+            </button>
           </nav>
         </div>
       </div>

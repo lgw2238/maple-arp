@@ -1,32 +1,44 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import { Guild } from '@/interfaces/index';
-
-// 임시 데이터
-const mockGuilds: Guild[] = Array.from({ length: 20 }, (_, i) => ({
-  rank: i + 1,
-  previousRank: i + 1 + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 3),
-  name: `길드${i + 1}`,
-  server: ['스카니아', '베라', '루나', '크로아'][Math.floor(Math.random() * 4)],
-  level: 30 - Math.floor(Math.random() * 5),
-  memberCount: Math.floor(Math.random() * 150) + 50,
-  masterName: `길드마스터${i + 1}`,
-}));
+import { fetchGuildData } from '@/lib/maple-api';
 
 export default function GuildPage() {
   const [guilds, setGuilds] = useState<Guild[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
-    // 실제 API 연동 시 이 부분을 수정하면 됩니다
-    setTimeout(() => {
-      setGuilds(mockGuilds);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    const loadData = async () => {
+      try {
+        const result = await fetchGuildData(currentPage);
+        console.log('Fetched guild data:', result); // API 응답 확인
+        setGuilds(result.data || []); // 응답이 없을 경우 빈 배열로 설정
+        setTotalPages(result.totalPages);
+      } catch (error) {
+        console.error('Error loading guild data:', error);
+        setGuilds([]); // 오류 발생 시 빈 배열로 설정
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, [currentPage]);
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   const getRankChange = (current: number, previous: number) => {
     const diff = previous - current;
@@ -67,7 +79,7 @@ export default function GuildPage() {
           </div>
         </div>
 
-        {/* Guild Rankings Table */}
+        {/* Guild Rankings */}
         <div className="bg-white rounded-lg shadow overflow-hidden">
           {loading ? (
             <div className="p-8 text-center">
@@ -75,111 +87,26 @@ export default function GuildPage() {
               <p className="mt-4 text-gray-500">길드 정보를 불러오는 중...</p>
             </div>
           ) : (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    순위
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    길드명
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    레벨
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    길드원
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    서버
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    길드마스터
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {guilds.map((guild) => {
-                  const rankChange = getRankChange(guild.rank, guild.previousRank);
-                  return (
-                    <tr key={guild.name} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <span className="text-sm font-medium text-gray-900">
-                            {guild.rank}
-                          </span>
-                          <div className="ml-2 flex items-center">
-                            {rankChange.icon}
-                            {rankChange.value > 0 && (
-                              <span className="ml-1 text-xs text-gray-500">
-                                {rankChange.value}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Link 
-                          href={`/guild/${encodeURIComponent(guild.name)}`}
-                          className="text-sm font-medium text-blue-600 hover:text-blue-800"
-                        >
-                          {guild.name}
-                        </Link>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {guild.level}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {guild.memberCount}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {guild.server}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <Link 
-                          href={`/characters/${encodeURIComponent(guild.masterName)}`}
-                          className="text-sm text-blue-600 hover:text-blue-800"
-                        >
-                          {guild.masterName}
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <div>
+              <div className="grid grid-cols-1 gap-4">
+                {guilds.slice((currentPage - 1) * 20, currentPage * 20).map(guild => (
+                  <div key={guild.ranking} className="border p-4 rounded shadow">
+                    <h2 className="text-lg font-bold">{guild.guild_name}</h2>
+                    <p>서버: {guild.world_name}</p>
+                    <p>레벨: {guild.guild_level}</p>
+                    <p>길드 포인트: {guild.guild_point}</p>
+                    <p>길드 마스터: {guild.guild_master_name}</p>
+                    <p>순위: {guild.ranking}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 flex justify-between">
+                <button onClick={handlePrevPage} disabled={currentPage === 1} className="bg-gray-300 p-2 rounded">이전</button>
+                <span>Page {currentPage}</span>
+                <button onClick={handleNextPage} disabled={currentPage === totalPages} className="bg-gray-300 p-2 rounded">다음</button>
+              </div>
+            </div>
           )}
-        </div>
-
-        {/* Pagination */}
-        <div className="mt-6 flex justify-center">
-          <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-            <a
-              href="#"
-              className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-            >
-              이전
-            </a>
-            {[1, 2, 3, 4, 5].map((page) => (
-              <a
-                key={page}
-                href="#"
-                className={`relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium ${
-                  page === 1
-                    ? 'text-blue-600 bg-blue-50'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                {page}
-              </a>
-            ))}
-            <a
-              href="#"
-              className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-            >
-              다음
-            </a>
-          </nav>
         </div>
       </div>
     </div>

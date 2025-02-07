@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
 import { searchCharacter } from '@/lib/maple-api';
 import { ExtendedCharacterData } from '@/interfaces/index';
+import { Tabs, Tab } from 'react-bootstrap';
+import './styles.css';
 
 export default function CharacterPage({ params }: { params: Promise<{ name: string }> }) {
   const resolvedParams = use(params);
@@ -17,6 +19,7 @@ export default function CharacterPage({ params }: { params: Promise<{ name: stri
   const [isRegistered, setIsRegistered] = useState(false);
   const [registering, setRegistering] = useState(false);
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState('character-info');
 
   useEffect(() => {
     const fetchCharacter = async () => {
@@ -92,6 +95,10 @@ export default function CharacterPage({ params }: { params: Promise<{ name: stri
 
   const toggleStats = () => {
     setShowAllStats(!showAllStats);
+  };
+
+  const handleTabClick = (tab: string) => {
+    setActiveTab(tab);
   };
 
   if (loading) {
@@ -232,81 +239,76 @@ export default function CharacterPage({ params }: { params: Promise<{ name: stri
 
           {/* Navigation Tabs */}
           <div className="border-t">
-            <div className="flex space-x-8 px-6">
-              <button className="py-4 text-blue-600 font-medium border-b-2 border-blue-600">
-                캐릭터 정보
-              </button>
-              <button className="py-4 text-gray-500 hover:text-gray-700">
-                장비
-              </button>
-              <button className="py-4 text-gray-500 hover:text-gray-700">
-                스킬
-              </button>
-              <button className="py-4 text-gray-500 hover:text-gray-700">
-                V매트릭스
-              </button>
+            <div className="nav-tabs">
+              <button className={`nav-link ${activeTab === 'character-info' ? 'active' : ''}`} onClick={() => handleTabClick('character-info')}>캐릭터 정보</button>
+              <button className={`nav-link ${activeTab === 'equipment' ? 'active' : ''}`} onClick={() => handleTabClick('equipment')}>장비</button>
+              <button className={`nav-link ${activeTab === 'skills' ? 'active' : ''}`} onClick={() => handleTabClick('skills')}>스킬</button>
+              <button className={`nav-link ${activeTab === 'v-matrix' ? 'active' : ''}`} onClick={() => handleTabClick('v-matrix')}>V매트릭스</button>
             </div>
+
+            {activeTab === 'character-info' && (
+              <div className="p-6">
+                <h3 className="text-lg font-bold mb-4">스탯 정보</h3>
+                <button onClick={toggleStats} className="text-blue-500 hover:underline">
+                  {showAllStats ? '숨기기' : '모두 보기'}
+                </button>
+                <div className="grid grid-cols-2 gap-4">
+                  {character.stats?.final_stat
+                    .filter(stat => showAllStats || ['보스 몬스터 데미지', '데미지', '방어율 무시', '버프 지속시간', '크리티컬 확률', '크리티컬 데미지', '아케인포스', '어센틱포스'].includes(stat.stat_name))
+                    .map((stat, index: number) => (
+                      <div key={index}>
+                        <dt className="text-sm text-gray-500">{stat.stat_name}</dt>
+                        <dd className="text-lg font-semibold">{stat.stat_value}</dd>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+            {activeTab === 'equipment' && (
+              <div className="p-6">
+                <h3 className="text-lg font-bold mb-4">장비 목록</h3>
+                <div className="grid">
+                  {character.items?.item_equipment.slice(0, 9).map((item, index) => (
+                    <div key={index} className="stat-container">
+                      <img src={item.item_icon} alt={item.item_name} className="character-image" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeTab === 'skills' && (
+              <div className="p-6">
+                <h3 className="text-lg font-bold mb-4">스킬 목록</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {character.skills?.character_skill.map((skill, index: number) => (
+                    <div key={index}>
+                      <img src={skill.skill_icon} alt={skill.skill_icon} className="skill-image" />
+                      <dt className="text-sm text-gray-500">{skill.skill_name}</dt>
+                      <dd className="text-lg font-semibold">{skill.skill_level}</dd>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {activeTab === 'v-matrix' && (
+              <div className="p-6">
+                <h3 className="text-lg font-bold mb-4">V매트릭스 정보</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {character.vMatrix?.character_v_core_equipment.map((v_matrix, index: number) => (
+                    <div key={index}>
+                      <dt className="text-sm text-gray-500">{v_matrix.v_core_type}</dt>
+                      <dt className="text-sm text-gray-500">{v_matrix.v_core_name}</dt>
+                      <dd className="text-lg font-semibold">{v_matrix.v_core_level}</dd>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Content Sections */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Stats Section */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-lg font-bold mb-4">스탯 정보</h3>
-            <button onClick={toggleStats} className="text-blue-500 hover:underline">
-              {showAllStats ? '숨기기' : '모두 보기'}
-            </button>
-            <div className="grid grid-cols-2 gap-4">
-              {character.stats?.final_stat
-                .filter(stat => showAllStats || ['보스 몬스터 데미지', '데미지', '방어율 무시', '버프 지속시간', '크리티컬 확률', '크리티컬 데미지', '아케인포스', '어센틱포스'].includes(stat.stat_name))
-                .map((stat, index) => (
-                  <div key={index}>
-                    <dt className="text-sm text-gray-500">{stat.stat_name}</dt>
-                    <dd className="text-lg font-semibold">{stat.stat_value}</dd>
-                  </div>
-                ))}
-            </div>
-          </div>
-
-          {/* Symbols Section */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-lg font-bold mb-4">심볼 정보</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {character.symbols?.symbol_equipment && character.symbols.symbol_equipment.length > 0 ? (
-                character.symbols.symbol_equipment.map((symbol, index) => (
-                  <div key={index}>
-                    <dt className="text-sm text-gray-500">{symbol.symbol_name}</dt>
-                    <dd className="text-lg font-semibold">
-                      Lv.{symbol.symbol_level} ({symbol.symbol_exp_rate}%)
-                    </dd>
-                  </div>
-                ))
-              ) : (
-                <div>심볼 정보가 없습니다.</div>
-              )}
-            </div>
-          </div>
-
-          {/* Equipment Preview */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h3 className="text-lg font-bold mb-4">장비 미리보기</h3>
-            <div className="grid grid-cols-3 gap-2">
-              {character.items?.item_equipment.slice(0, 9).map((item, index) => (
-                <div key={index} className="relative group">
-                  <img 
-                    src={item.item_icon} 
-                    alt={item.item_name}
-                    className="w-full h-auto rounded border border-gray-200"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {item.item_name}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Union Level */}
           {character.union && (
             <div className="bg-white rounded-lg shadow-lg p-6">
