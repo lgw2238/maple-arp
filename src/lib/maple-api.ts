@@ -145,9 +145,9 @@ export async function getCharacterBosses(ocid: string): Promise<Boss[]> {
     }
 }
 
-export const fetchGuildData = async (page: number) => {
+export const fetchGuildData = async (page: number, server: string) => {
     try {
-        const response = await fetch(`${MAPLE_API_BASE_URL}/ranking/guild?page=${page}&date=${getYesterday()}&ranking_type=0`, {
+        const response = await fetch(`${MAPLE_API_BASE_URL}/ranking/guild?page=${page}&date=${getYesterday()}&ranking_type=0&world_name=${server}`, {
             headers: {
                 'x-nxopen-api-key': MAPLE_API_KEY || ''
             }

@@ -4,17 +4,19 @@ import { useState, useEffect } from 'react';
 import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import { Guild } from '@/interfaces/index';
 import { fetchGuildData } from '@/lib/maple-api';
+import { Card, CardContent, Typography, Button, Grid, CircularProgress } from '@mui/material';
 
 export default function GuildPage() {
   const [guilds, setGuilds] = useState<Guild[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [server, setServer] = useState('');
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const result = await fetchGuildData(currentPage);
+        const result = await fetchGuildData(currentPage, server);
         console.log('Fetched guild data:', result); // API 응답 확인
         setGuilds(result.data || []); // 응답이 없을 경우 빈 배열로 설정
         setTotalPages(result.totalPages);
@@ -26,7 +28,7 @@ export default function GuildPage() {
       }
     };
     loadData();
-  }, [currentPage]);
+  }, [currentPage, server]);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -40,15 +42,12 @@ export default function GuildPage() {
     }
   };
 
-  const getRankChange = (current: number, previous: number) => {
-    const diff = previous - current;
-    if (diff > 0) {
-      return { icon: <ChevronUpIcon className="h-4 w-4 text-green-500" />, value: diff };
-    } else if (diff < 0) {
-      return { icon: <ChevronDownIcon className="h-4 w-4 text-red-500" />, value: Math.abs(diff) };
-    }
-    return { icon: <span className="text-gray-400">-</span>, value: 0 };
-  };
+  const serverNames = [
+    '루나', '스카니아', '엘리시움', '크로아', '오로라',
+    '베라', '레드', '유니온', '제니스', '이노시스',
+    '아케인', '노바', '챌린저스', '챌린저스2',
+    '챌린저스3', '챌린저스4', '에오스', '핼리오스'
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -79,34 +78,50 @@ export default function GuildPage() {
           </div>
         </div>
 
+        <div className="flex space-x-2 mb-4">
+          {serverNames.map(server => (
+            <Button
+              key={server}
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                setServer(server);
+                setCurrentPage(1); // 페이지를 1로 리셋
+              }}
+            >
+              {server}
+            </Button>
+          ))}
+        </div>
+
         {/* Guild Rankings */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <Grid container spacing={2}>
           {loading ? (
-            <div className="p-8 text-center">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <p className="mt-4 text-gray-500">길드 정보를 불러오는 중...</p>
-            </div>
+            <CircularProgress />
           ) : (
-            <div>
-              <div className="grid grid-cols-1 gap-4">
-                {guilds.slice((currentPage - 1) * 20, currentPage * 20).map(guild => (
-                  <div key={guild.ranking} className="border p-4 rounded shadow">
-                    <h2 className="text-lg font-bold">{guild.guild_name}</h2>
-                    <p>서버: {guild.world_name}</p>
-                    <p>레벨: {guild.guild_level}</p>
-                    <p>길드 포인트: {guild.guild_point}</p>
-                    <p>길드 마스터: {guild.guild_master_name}</p>
-                    <p>순위: {guild.ranking}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 flex justify-between">
-                <button onClick={handlePrevPage} disabled={currentPage === 1} className="bg-gray-300 p-2 rounded">이전</button>
-                <span>Page {currentPage}</span>
-                <button onClick={handleNextPage} disabled={currentPage === totalPages} className="bg-gray-300 p-2 rounded">다음</button>
-              </div>
-            </div>
+            guilds.slice((currentPage - 1) * 20, currentPage * 20).map(guild => (
+              <Grid item xs={12} key={guild.ranking}> 
+                <Card variant="outlined">
+                  <CardContent>
+                    <Typography variant="h5" component="div">
+                      {guild.guild_name}
+                    </Typography>
+                    <Typography color="text.secondary">서버: {guild.world_name}</Typography>
+                    <Typography color="text.secondary">레벨: {guild.guild_level}</Typography>
+                    <Typography color="text.secondary">길드 포인트: {guild.guild_point}</Typography>
+                    <Typography color="text.secondary">길드 마스터: {guild.guild_master_name}</Typography>
+                    <Typography color="text.secondary">순위: {guild.ranking}</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))
           )}
+        </Grid>
+
+        <div className="mt-4 flex justify-between">
+          <Button onClick={handlePrevPage} disabled={currentPage === 1} variant="outlined">이전</Button>
+          <span>Page {currentPage}</span>
+          <Button onClick={handleNextPage} disabled={currentPage === totalPages} variant="outlined">다음</Button>
         </div>
       </div>
     </div>
