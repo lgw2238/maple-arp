@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
 import { searchCharacter } from '@/lib/maple-api';
 import { ExtendedCharacterData } from '@/interfaces/index';
-import { Tabs, Tab } from 'react-bootstrap';
 import './styles.css';
 
 export default function CharacterPage({ params }: { params: Promise<{ name: string }> }) {
@@ -297,7 +296,33 @@ export default function CharacterPage({ params }: { params: Promise<{ name: stri
         </div>
       ))}
     </div>
-  </div>
+    <br/>
+    <div>
+      <h3 className="text-lg font-bold mb-4">심볼 목록</h3>
+      <div className="grid grid-cols-2 gap-4">
+        { character.symbols?.symbol.map((symbol, index: number) => (
+          <div key={index} className="relative flex flex-col items-center p-4 bg-white rounded-lg shadow-md">
+            <img 
+              src={symbol.symbol_icon} 
+              alt={symbol.symbol_name} 
+              className="w-16 h-16 object-cover mb-2" 
+            />
+            <span className="text-sm font-medium text-gray-700">{symbol.symbol_name}</span>
+            <div className="absolute bottom-0 left-0 w-full p-2 bg-white rounded-lg shadow-lg opacity-0 hover:opacity-100 transition-opacity duration-300">
+              <div className="text-xs text-gray-500 space-y-2">
+                <div className="border-b pb-2">
+                  <p className="font-bold">심볼 옵션</p>
+                  <p><strong>레벨:</strong> {symbol.symbol_level}</p>
+                  <p><strong>경험치:</strong> {symbol.symbol_exp_rate}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+</div>
+  
 )}
             {activeTab === 'skills' && (
               <div className="p-6">
