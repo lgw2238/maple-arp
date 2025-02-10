@@ -264,18 +264,41 @@ export default function CharacterPage({ params }: { params: Promise<{ name: stri
                 </div>
               </div>
             )}
-            {activeTab === 'equipment' && (
-              <div className="p-6">
-                <h3 className="text-lg font-bold mb-4">장비 목록</h3>
-                <div className="grid">
-                  {character.items?.item_equipment.slice(0, 9).map((item, index) => (
-                    <div key={index} className="stat-container">
-                      <img src={item.item_icon} alt={item.item_name} className="character-image" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+         {activeTab === 'equipment' && (
+  <div className="p-6">
+    <h3 className="text-lg font-bold mb-4">장비 목록</h3>
+    <div className="grid grid-cols-2 gap-4">
+      {character.items?.item_equipment.map((item, index) => (
+        <div key={index} className="relative flex flex-col items-center p-4 bg-white rounded-lg shadow-md">
+          <img 
+        src={item.item_icon} 
+        alt={item.item_name} 
+        className={`w-16 h-16 object-cover mb-2 ${item.potential_option_grade === '에픽' ? 'border-4 border-purple-500' : item.potential_option_grade === '유니크' ? 'border-4 border-yellow-500' : item.potential_option_grade === '레전드리' ? 'border-4 border-green-500' : ''}`} 
+          />
+          <span className="text-sm font-medium text-gray-700">{item.item_name}</span>
+          <div className="absolute bottom-0 left-0 w-full p-2 bg-white rounded-lg shadow-lg opacity-0 hover:opacity-100 transition-opacity duration-300">
+        <div className="text-xs text-gray-500 space-y-2">
+          <div className="border-b pb-2">
+            <p className="font-bold">잠재옵션</p>
+            <p><strong>등급:</strong> {item.potential_option_grade}</p>
+            <p><strong>옵션 1:</strong> {item.potential_option_1}</p>
+            <p><strong>옵션 2:</strong> {item.potential_option_2}</p>
+            <p><strong>옵션 3:</strong> {item.potential_option_3}</p>
+          </div>
+          <div className="pt-2">
+            <p className="font-bold">에디셔널 잠재옵션</p>
+            <p><strong>등급:</strong> {item.additional_potential_option_grade}</p>
+            <p><strong>옵션 1:</strong> {item.additional_potential_option_1}</p>
+            <p><strong>옵션 2:</strong> {item.additional_potential_option_2}</p>
+            <p><strong>옵션 3:</strong> {item.additional_potential_option_3}</p>
+          </div>
+        </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
             {activeTab === 'skills' && (
               <div className="p-6">
                 <h3 className="text-lg font-bold mb-4">스킬 목록</h3>
