@@ -145,24 +145,32 @@ export async function getCharacterBosses(ocid: string): Promise<Boss[]> {
     }
 }
 
-export const fetchGuildData = async (page: number, server: string) => {
+export const fetchGuildData = async (page: number, searchType: string, parameter: string, guildName: string) => {
     try {
-        const response = await fetch(`${MAPLE_API_BASE_URL}/ranking/guild?page=${page}&date=${getYesterday()}&ranking_type=0&world_name=${server}`, {
+        let url = `${MAPLE_API_BASE_URL}/ranking/guild?page=${page}&date=${getYesterday()}&ranking_type=0`;
+
+        switch (searchType) {
+            case 'server':
+                url += `&world_name=${parameter}`;
+                break;
+            case 'guild':
+                url += `&guild_name=${guildName}`;
+                break;
+            default:
+               
+        }
+
+        const response = await fetch(url, {
             headers: {
                 'x-nxopen-api-key': MAPLE_API_KEY || ''
             }
         });
 
-        if (!response.ok) {
-            throw new Error(`API request failed with status ${response.status}`);
-        }
-
         const data = await response.json();
-        console.log("fetchGuildData1:", response);
-        console.log("fetchGuildData:", data);
+        console.log('fetchGuildData:', data);
         return {
-            data: data.ranking, // API에서 길드 데이터 추출
-            totalPages: Math.ceil(data.ranking.length / 20) // 총 페이지 수 (예시: 20개씩 페이지 나누기)
+            data: data.ranking,
+            totalPages: Math.ceil(data.ranking.length / 20)
         };
     } catch (error) {
         console.error('Error fetching guild data:', error);

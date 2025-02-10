@@ -1,22 +1,24 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
 import { Guild } from '@/interfaces/index';
 import { fetchGuildData } from '@/lib/maple-api';
-import { Card, CardContent, Typography, Button, Grid, CircularProgress } from '@mui/material';
+import { Card, CardContent, Typography, Button, Grid, CircularProgress, TextField } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
 export default function GuildPage() {
   const [guilds, setGuilds] = useState<Guild[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [server, setServer] = useState('');
+  const [searchType, setSearchType] = useState('');
+  const [searchParameter, setSearchParameter] = useState('');
+  const [searchGuildName, setSearchGuildName] = useState('');
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const result = await fetchGuildData(currentPage, server);
+        const result = await fetchGuildData(currentPage, searchType, searchParameter, searchGuildName);
         console.log('Fetched guild data:', result); // API 응답 확인
         setGuilds(result.data || []); // 응답이 없을 경우 빈 배열로 설정
         setTotalPages(result.totalPages);
@@ -28,7 +30,7 @@ export default function GuildPage() {
       }
     };
     loadData();
-  }, [currentPage, server]);
+  }, [currentPage, searchType, searchParameter, searchGuildName]);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -60,36 +62,48 @@ export default function GuildPage() {
           </p>
         </div>
 
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow mb-6 p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <select className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-              <option value="">전체 서버</option>
-              <option value="scania">스카니아</option>
-              <option value="bera">베라</option>
-              <option value="luna">루나</option>
-              <option value="croa">크로아</option>
-            </select>
-            <input
-              type="text"
-              placeholder="길드명 검색"
-              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            />
-          </div>
+        <div className="flex space-x-2 mb-4">
+          <TextField
+            label="길드명 검색"
+            variant="outlined"
+            value={searchGuildName}
+            onChange={(e) => setSearchGuildName(e.target.value)}
+            sx={{ flexGrow: 1 }}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              setSearchType('guild');
+              setSearchGuildName(searchGuildName);
+               // fetchGuildData(currentPage, searchType, searchParameter, searchGuildName)
+            }}
+          >
+            <SearchIcon />
+          </Button>
         </div>
 
         <div className="flex space-x-2 mb-4">
-          {serverNames.map(server => (
+          {serverNames.map(serverName => (
             <Button
-              key={server}
-              variant="contained"
+              key={serverName}
+              variant="outlined"
               color="primary"
               onClick={() => {
-                setServer(server);
+                setSearchType('server');
+                setSearchParameter(serverName);
                 setCurrentPage(1); // 페이지를 1로 리셋
               }}
+              sx={{
+                borderRadius: '8px',
+                '&:hover': {
+                  backgroundColor: '#1976d2', // Hover 색상
+                  color: 'white',
+                },
+                transition: '0.3s',
+              }}
             >
-              {server}
+              {serverName}
             </Button>
           ))}
         </div>
