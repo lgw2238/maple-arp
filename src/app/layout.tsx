@@ -19,20 +19,30 @@ export default function RootLayout({
   return (
     <html lang="ko" className="h-full">
       <body className={`${inter.className} h-full`}>
-        <div className="min-h-full">
-          <Providers>
-            <Navbar />
-            <main>{children}</main>
-            <footer className="bg-white border-t">
-              <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                <p className="text-center text-sm text-gray-500">
-                  &copy; {new Date().getFullYear()} Maple ARP. All rights reserved.
-                </p>
-              </div>
-            </footer>
-          </Providers>
-        </div>
+        <Providers>
+          <Navbar />
+          <main>{children}</main>
+        </Providers>
       </body>
     </html>
   );
+  // return (
+  //   <html lang="ko" className="h-full">
+  //     <body className={`${inter.className} h-full`}>
+  //       <div className="min-h-full">
+  //         <Providers>
+  //           <Navbar />
+  //           <main>{children}</main>
+  //           <footer className="bg-white border-t">
+  //             <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+  //               <p className="text-center text-sm text-gray-500">
+  //                 &copy; {new Date().getFullYear()} Maple ARP. All rights reserved.
+  //               </p>
+  //             </div>
+  //           </footer>
+  //         </Providers>
+  //       </div>
+  //     </body>
+  //   </html>
+  // );
 }

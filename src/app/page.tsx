@@ -50,8 +50,8 @@ export default function Home() {
         </div>
         <div className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-white" />
       </div>
-
-      {/* Features Section */}
+{/*
+      // Features Section
       <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-2xl lg:text-center">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
@@ -63,7 +63,6 @@ export default function Home() {
         </div>
         <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
           <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
-            {/* Feature 1 */}
             <div className="flex flex-col">
               <dt className="text-lg font-semibold leading-7 text-gray-900">
                 실시간 랭킹
@@ -73,7 +72,6 @@ export default function Home() {
               </dd>
             </div>
 
-            {/* Feature 2 */}
             <div className="flex flex-col">
               <dt className="text-lg font-semibold leading-7 text-gray-900">
                 상세 캐릭터 정보
@@ -83,7 +81,6 @@ export default function Home() {
               </dd>
             </div>
 
-            {/* Feature 3 */}
             <div className="flex flex-col">
               <dt className="text-lg font-semibold leading-7 text-gray-900">
                 길드 랭킹
@@ -95,7 +92,7 @@ export default function Home() {
           </dl>
         </div>
       </div>
-
+*/}
       {/* Quick Links */}
       <div className="bg-white py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -108,7 +105,7 @@ export default function Home() {
             {[
               { title: '전체 랭킹', href: '/ranking' },
               { title: '직업 랭킹', href: '/ranking/job' },
-              { title: '길드 랭킹', href: '/ranking/guild' },
+              { title: '길드 랭킹', href: '/guild' },
               { title: '유니온 랭킹', href: '/ranking/union' },
             ].map((link) => (
               <a

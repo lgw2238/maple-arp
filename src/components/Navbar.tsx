@@ -1,17 +1,19 @@
 'use client';
 
-import { Fragment } from 'react';
+import { Fragment, useState } from 'react';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
+import './Navbar.css'; // Import the CSS file
 
 const navigation = [
   { name: '홈', href: '/' },
   { name: '랭킹', href: '/ranking' },
   { name: '길드', href: '/guild' },
   { name: '보스 결정석 계산기', href: '/calculator' },
+  { name: '보스 분배금 계산기', href: '/distribution' },
 ];
 
 function classNames(...classes: string[]) {
